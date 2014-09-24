@@ -108,7 +108,7 @@ void MultiSceneTest::onEnter()
 
 void MultiSceneTest::restartCallback(Ref *sender)
 {
-    auto s = new NewRendererTestScene();
+    auto s = new (std::nothrow) NewRendererTestScene();
     s->addChild(restartTest());
 
     Director::getInstance()->replaceScene(s);
@@ -117,7 +117,7 @@ void MultiSceneTest::restartCallback(Ref *sender)
 
 void MultiSceneTest::nextCallback(Ref *sender)
 {
-    auto s = new NewRendererTestScene();
+    auto s = new (std::nothrow) NewRendererTestScene();
     s->addChild(nextTest());
 
     Director::getInstance()->replaceScene(s);
@@ -126,7 +126,7 @@ void MultiSceneTest::nextCallback(Ref *sender)
 
 void MultiSceneTest::backCallback(Ref *sender)
 {
-    auto s = new NewRendererTestScene();
+    auto s = new (std::nothrow) NewRendererTestScene();
     s->addChild(prevTest());
 
     Director::getInstance()->replaceScene(s);
@@ -231,24 +231,24 @@ protected:
 public:
     static SpriteInGroupCommand* create(const std::string& filename);
     
-    virtual void draw(Renderer *renderer, const Mat4 &transform, bool transformUpdated) override;
+    virtual void draw(Renderer *renderer, const Mat4 &transform, uint32_t flags) override;
 };
 
 SpriteInGroupCommand* SpriteInGroupCommand::create(const std::string &filename)
 {
-    SpriteInGroupCommand* sprite = new SpriteInGroupCommand();
+    SpriteInGroupCommand* sprite = new (std::nothrow) SpriteInGroupCommand();
     sprite->initWithFile(filename);
     sprite->autorelease();
     return sprite;
 }
 
-void SpriteInGroupCommand::draw(Renderer *renderer, const Mat4 &transform, bool transformUpdated)
+void SpriteInGroupCommand::draw(Renderer *renderer, const Mat4 &transform, uint32_t flags)
 {
     CCASSERT(renderer, "Render is null");
     _spriteWrapperCommand.init(_globalZOrder);
     renderer->addCommand(&_spriteWrapperCommand);
     renderer->pushGroup(_spriteWrapperCommand.getRenderQueueID());
-    Sprite::draw(renderer, transform, transformUpdated);
+    Sprite::draw(renderer, transform, flags);
     renderer->popGroup();
 }
 
@@ -357,7 +357,7 @@ NewClippingNodeTest::NewClippingNodeTest()
     clipper->runAction(RepeatForever::create(RotateBy::create(1, 45)));
     this->addChild(clipper);
 
-    //TODO Fix draw node as clip node
+    // TODO: Fix draw node as clip node
 //    auto stencil = NewDrawNode::create();
 //    Vec2 rectangle[4];
 //    rectangle[0] = Vec2(0, 0);
